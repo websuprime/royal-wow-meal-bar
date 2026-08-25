@@ -1,0 +1,11 @@
+/k
+/node_modules
+/frontend/node_modules
+/server/node_modules
+/server/uploads
+/server/dist
+/frontend/dist
+.env
+.env.*
+*.stackdump
+
