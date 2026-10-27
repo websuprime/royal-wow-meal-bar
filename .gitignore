@@ -7,5 +7,6 @@
 /frontend/dist
 .env
 .env.*
+!.env.example
 *.stackdump
 

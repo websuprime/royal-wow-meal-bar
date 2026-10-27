@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify'
+import { verifyJwt, bearerSecurity } from '../middleware/auth'
 import { menuController } from '../controllers/menu.controller'
 
 export default async function menuRoutes(fastify: FastifyInstance) {
@@ -8,46 +9,6 @@ export default async function menuRoutes(fastify: FastifyInstance) {
       summary: 'Get all menu items'
     }
   }, menuController.getAllMenu)
-
-  fastify.get('/export/csv', {
-    schema: {
-      tags: ['Menu'],
-      summary: 'Export menu as CSV',
-      querystring: {
-        type: 'object',
-        properties: {
-          type: { type: 'string', enum: ['restaurant', 'bar', 'all'] }
-        }
-      }
-    }
-  }, menuController.exportMenuCsv)
-
-  fastify.get('/export/xlsx', {
-    schema: {
-      tags: ['Menu'],
-      summary: 'Export menu as Excel (.xlsx)',
-      querystring: {
-        type: 'object',
-        properties: {
-          type: { type: 'string', enum: ['restaurant', 'bar', 'all'] }
-        }
-      }
-    }
-  }, menuController.exportMenuXlsx)
-
-  fastify.post('/import', {
-    schema: {
-      tags: ['Menu'],
-      summary: 'Import menu from CSV or Excel (multipart field: file)',
-      consumes: ['multipart/form-data'],
-      querystring: {
-        type: 'object',
-        properties: {
-          defaultType: { type: 'string', enum: ['restaurant', 'bar'] }
-        }
-      }
-    }
-  }, menuController.importMenuFile)
 
   fastify.get('/:type', {
     schema: {
@@ -61,28 +22,79 @@ export default async function menuRoutes(fastify: FastifyInstance) {
     }
   }, menuController.getMenuByType)
 
-  fastify.post('/', {
-    schema: {
-      tags: ['Menu'],
-      summary: 'Create a menu item',
-      description: 'Supports multipart/form-data for image upload',
-      // We keep body generic for manual parsing but can still define fields for docs
-    }
-  }, menuController.createMenuItem)
+  // Admin-only routes: every route registered in this scope requires a valid JWT
+  fastify.register(async (admin) => {
+    admin.addHook('preHandler', verifyJwt)
 
-  fastify.put('/:id', {
-    schema: {
-      tags: ['Menu'],
-      summary: 'Update a menu item',
-      params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] }
-    }
-  }, menuController.updateMenuItem)
+    admin.get('/export/csv', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Menu'],
+        summary: 'Export menu as CSV',
+        querystring: {
+          type: 'object',
+          properties: {
+            type: { type: 'string', enum: ['restaurant', 'bar', 'all'] }
+          }
+        }
+      }
+    }, menuController.exportMenuCsv)
 
-  fastify.delete('/:id', {
-    schema: {
-      tags: ['Menu'],
-      summary: 'Delete a menu item',
-      params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] }
-    }
-  }, menuController.deleteMenuItem)
+    admin.get('/export/xlsx', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Menu'],
+        summary: 'Export menu as Excel (.xlsx)',
+        querystring: {
+          type: 'object',
+          properties: {
+            type: { type: 'string', enum: ['restaurant', 'bar', 'all'] }
+          }
+        }
+      }
+    }, menuController.exportMenuXlsx)
+
+    admin.post('/import', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Menu'],
+        summary: 'Import menu from CSV or Excel (multipart field: file)',
+        consumes: ['multipart/form-data'],
+        querystring: {
+          type: 'object',
+          properties: {
+            defaultType: { type: 'string', enum: ['restaurant', 'bar'] }
+          }
+        }
+      }
+    }, menuController.importMenuFile)
+
+    admin.post('/', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Menu'],
+        summary: 'Create a menu item',
+        description: 'Supports multipart/form-data for image upload',
+        // We keep body generic for manual parsing but can still define fields for docs
+      }
+    }, menuController.createMenuItem)
+
+    admin.put('/:id', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Menu'],
+        summary: 'Update a menu item',
+        params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] }
+      }
+    }, menuController.updateMenuItem)
+
+    admin.delete('/:id', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Menu'],
+        summary: 'Delete a menu item',
+        params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] }
+      }
+    }, menuController.deleteMenuItem)
+  })
 }

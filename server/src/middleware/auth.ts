@@ -2,7 +2,11 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { errorResponse } from '../utils/response'
 
-export const JWT_SECRET = process.env.JWT_SECRET || 'royal-wow-super-secret-key-2026'
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required (see server/.env.example)')
+}
+
+export const JWT_SECRET: string = process.env.JWT_SECRET
 
 export async function verifyJwt(request: FastifyRequest, reply: FastifyReply) {
   try {
@@ -20,3 +24,6 @@ export async function verifyJwt(request: FastifyRequest, reply: FastifyReply) {
     return reply.code(401).send(errorResponse('Unauthorized: Invalid or expired token', 401))
   }
 }
+
+// Swagger security requirement for routes guarded by verifyJwt
+export const bearerSecurity = [{ bearerAuth: [] }]
