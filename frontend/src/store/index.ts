@@ -69,8 +69,9 @@ export const useCartStore = create<CartStore>()(
 interface AdminStore {
   token: string | null;
   email: string | null;
+  role: string | null;
   isAuthenticated: boolean;
-  login: (email: string, token: string) => void;
+  login: (email: string, token: string, role: string) => void;
   logout: () => void;
 }
 
@@ -79,9 +80,10 @@ export const useAdminStore = create<AdminStore>()(
     (set) => ({
       token: null,
       email: null,
+      role: null,
       isAuthenticated: false,
-      login: (email, token) => set({ email, token, isAuthenticated: true }),
-      logout: () => set({ email: null, token: null, isAuthenticated: false }),
+      login: (email, token, role) => set({ email, token, role, isAuthenticated: true }),
+      logout: () => set({ email: null, token: null, role: null, isAuthenticated: false }),
     }),
     { name: 'royal-wow-admin' }
   )

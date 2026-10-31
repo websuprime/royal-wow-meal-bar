@@ -11,14 +11,15 @@ const start = async () => {
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/royal-wow')
     app.log.info('Connected to MongoDB')
 
-    // Create default admin user
+    // Create the admin (from env) and the read-only demo user
     await adminService.createInitialAdmin()
-    app.log.info('Initial admin seeded (if not exists)')
+    await adminService.createDemoAdmin()
 
     // Start fastify server
-    await app.listen({ port: 3001, host: '0.0.0.0' })
-    app.log.info(`Server listening on http://localhost:3001`)
-    app.log.info(`Swagger UI available at http://localhost:3001/api/docs`)
+    const port = Number(process.env.PORT) || 3001
+    await app.listen({ port, host: '0.0.0.0' })
+    app.log.info(`Server listening on http://localhost:${port}`)
+    app.log.info(`Swagger UI available at http://localhost:${port}/api/docs`)
   } catch (err) {
     app.log.error(err)
     process.exit(1)

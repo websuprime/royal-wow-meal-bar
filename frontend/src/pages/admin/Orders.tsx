@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet-async'
 import { Download, Eye } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiGetOrders, apiUpdateOrderStatus } from '@/lib/api.service'
-import type { Order } from '@/types'
 
 const statusColors: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-400',
@@ -193,7 +192,7 @@ export default function AdminOrders() {
                 {(selectedOrder.discount || 0) > 0 && (
                   <div className="flex justify-between text-green-500/80">
                     <span>DISCOUNT ({selectedOrder.discount}%)</span>
-                    <span>-₹{((selectedOrder.subtotal * selectedOrder.discount) / 100).toFixed(2)}</span>
+                    <span>-₹{((selectedOrder.subtotal * (selectedOrder.discount || 0)) / 100).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-white/50">

@@ -99,6 +99,10 @@ cp .env.example .env
 |----------|----------|-------------|
 | `JWT_SECRET` | **Yes** | Secret used to sign and verify admin JWTs. The server refuses to start without it. Generate one with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. |
 | `MONGODB_URI` | No | MongoDB connection string (default `mongodb://127.0.0.1:27017/royal-wow`). |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | No | Your full-access admin login. Created on first start if missing; a restart never resets it. |
+| `DEMO_EMAIL`, `DEMO_PASSWORD` | No | The public read-only demo login (default `demo@royalwow.com` / `royalwow-demo`). The API answers every change from it with 403. |
+| `PORT` | No | Server port (default `3001`). |
+| `FRONTEND_DIST` | No | Path to the built frontend. When set, the server also serves the React app, as in the Docker image. |
 
 ### Running Locally
 
@@ -120,6 +124,17 @@ You will need to run both the server and the frontend simultaneously.
 
 ### Authentication
 Admin endpoints (menu/category/event/coupon writes, menu import/export, order/reservation/contact listing and status updates, and analytics) require an `Authorization: Bearer <token>` header. Get a token from `POST /api/admin/login`; the admin dashboard sends it automatically after login. Public endpoints stay open: menu, category and event GETs, placing an order, booking a reservation, sending a contact message, and validating a coupon.
+
+### Read-only demo
+The login page is prefilled with the demo account. It can open every admin page and read all data, but any create, update or delete returns `403` and nothing changes.
+
+### Docker
+The root `Dockerfile` builds the frontend and the API into one image that serves both on port 3001:
+```bash
+docker build -t royal-wow .
+docker run -p 3001:3001 -e JWT_SECRET=... -e MONGODB_URI=... royal-wow
+# sample data, once: docker run --rm -e MONGODB_URI=... royal-wow node dist/seed.js
+```
 
 ### API Documentation
 Once the server is running, you can access the Swagger UI documentation at:

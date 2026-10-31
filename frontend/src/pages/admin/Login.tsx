@@ -6,9 +6,13 @@ import { Lock, Mail } from 'lucide-react'
 import { useAdminStore } from '@/store'
 import { apiAdminLogin } from '@/lib/api.service'
 
+// Public read-only demo login (the server rejects every change from it)
+const DEMO_EMAIL = 'demo@royalwow.com'
+const DEMO_PASSWORD = 'royalwow-demo'
+
 export default function AdminLogin() {
-  const [email, setEmail] = useState('admin@royalwow.com')
-  const [password, setPassword] = useState('admin123')
+  const [email, setEmail] = useState(DEMO_EMAIL)
+  const [password, setPassword] = useState(DEMO_PASSWORD)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   
@@ -22,7 +26,7 @@ export default function AdminLogin() {
     
     try {
       const data = await apiAdminLogin({ email, password })
-      login(email, data.token)
+      login(email, data.token, data.role)
       navigate('/admin/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid credentials')
@@ -62,7 +66,7 @@ export default function AdminLogin() {
             <p className="text-white/20 text-xs text-center">Protected by 256-bit encryption</p>
           </form>
 
-          <p className="text-white/20 text-xs text-center mt-6">Demo: admin@royalwow.com / admin123</p>
+          <p className="text-white/20 text-xs text-center mt-6">Read-only demo: {DEMO_EMAIL} / {DEMO_PASSWORD}</p>
         </motion.div>
       </div>
     </>

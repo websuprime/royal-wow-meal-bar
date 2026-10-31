@@ -6,6 +6,7 @@ import multipart from '@fastify/multipart'
 import fastifyStatic from '@fastify/static'
 import path from 'path'
 import { swaggerConfig, swaggerUiConfig } from './config/swagger'
+import { errorResponse } from './utils/response'
 
 // Import routes
 import menuRoutes from './routes/menu.routes'
@@ -52,6 +53,17 @@ export function buildApp() {
   app.register(categoryRoutes, { prefix: '/api/categories' })
 
   app.get('/health', async () => ({ status: 'ok' }))
+
+  // Production: serve the built React app from the same server, with index.html for client-side routes
+  const frontendDist = process.env.FRONTEND_DIST
+  if (frontendDist) {
+    app.register(fastifyStatic, { root: frontendDist, prefix: '/', decorateReply: false, wildcard: false })
+    app.setNotFoundHandler((request, reply) => {
+      const isPage = request.method === 'GET' && !request.url.startsWith('/api/') && !request.url.startsWith('/uploads/')
+      if (isPage) return reply.sendFile('index.html', frontendDist)
+      return reply.code(404).send(errorResponse('Not found', 404))
+    })
+  }
 
   return app
 }
