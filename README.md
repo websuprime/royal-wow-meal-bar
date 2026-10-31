@@ -86,6 +86,20 @@ A premium, full-stack web application for a combined Restaurant and Bar business
    npm install
    ```
 
+### Configuration
+
+The server reads its settings from environment variables (a `server/.env` file is loaded automatically). Copy the example and set a secret:
+
+```bash
+cd server
+cp .env.example .env
+```
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `JWT_SECRET` | **Yes** | Secret used to sign and verify admin JWTs. The server refuses to start without it. Generate one with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. |
+| `MONGODB_URI` | No | MongoDB connection string (default `mongodb://127.0.0.1:27017/royal-wow`). |
+
 ### Running Locally
 
 You will need to run both the server and the frontend simultaneously.
@@ -103,6 +117,9 @@ You will need to run both the server and the frontend simultaneously.
    npm run dev
    ```
    *The frontend will run on `http://localhost:5173`*
+
+### Authentication
+Admin endpoints (menu/category/event/coupon writes, menu import/export, order/reservation/contact listing and status updates, and analytics) require an `Authorization: Bearer <token>` header. Get a token from `POST /api/admin/login`; the admin dashboard sends it automatically after login. Public endpoints stay open: menu, category and event GETs, placing an order, booking a reservation, sending a contact message, and validating a coupon.
 
 ### API Documentation
 Once the server is running, you can access the Swagger UI documentation at:

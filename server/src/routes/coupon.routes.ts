@@ -1,14 +1,8 @@
 import { FastifyInstance } from 'fastify'
+import { verifyJwt, bearerSecurity } from '../middleware/auth'
 import { couponController } from '../controllers/coupon.controller'
 
 export default async function couponRoutes(fastify: FastifyInstance) {
-  fastify.get('/', {
-    schema: {
-      tags: ['Coupons'],
-      summary: 'Get all coupons'
-    }
-  }, couponController.getAllCoupons)
-
   fastify.post('/validate', {
     schema: {
       tags: ['Coupons'],
@@ -21,28 +15,44 @@ export default async function couponRoutes(fastify: FastifyInstance) {
     }
   }, couponController.validateCoupon)
 
-  fastify.post('/', {
-    schema: {
-      tags: ['Coupons'],
-      summary: 'Create a coupon',
-      body: { type: 'object' }
-    }
-  }, couponController.createCoupon)
+  // Admin-only routes: every route registered in this scope requires a valid JWT
+  fastify.register(async (admin) => {
+    admin.addHook('preHandler', verifyJwt)
 
-  fastify.put('/:id', {
-    schema: {
-      tags: ['Coupons'],
-      summary: 'Update a coupon',
-      params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
-      body: { type: 'object' }
-    }
-  }, couponController.updateCoupon)
+    admin.get('/', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Coupons'],
+        summary: 'Get all coupons'
+      }
+    }, couponController.getAllCoupons)
 
-  fastify.delete('/:id', {
-    schema: {
-      tags: ['Coupons'],
-      summary: 'Delete a coupon',
-      params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] }
-    }
-  }, couponController.deleteCoupon)
+    admin.post('/', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Coupons'],
+        summary: 'Create a coupon',
+        body: { type: 'object' }
+      }
+    }, couponController.createCoupon)
+
+    admin.put('/:id', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Coupons'],
+        summary: 'Update a coupon',
+        params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+        body: { type: 'object' }
+      }
+    }, couponController.updateCoupon)
+
+    admin.delete('/:id', {
+      schema: {
+        security: bearerSecurity,
+        tags: ['Coupons'],
+        summary: 'Delete a coupon',
+        params: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] }
+      }
+    }, couponController.deleteCoupon)
+  })
 }

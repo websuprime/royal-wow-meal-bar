@@ -6,12 +6,14 @@ async function checkData() {
   try {
     await mongoose.connect(MONGODB_URI);
     console.log('Connected to MongoDB');
+    const db = mongoose.connection.db;
+    if (!db) throw new Error('No database handle after connect');
 
-    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collections = await db.listCollections().toArray();
     console.log('Collections:', collections.map(c => c.name));
 
     for (const col of collections) {
-      const count = await mongoose.connection.db.collection(col.name).countDocuments();
+      const count = await db.collection(col.name).countDocuments();
       console.log(`Collection ${col.name}: ${count} documents`);
     }
 
