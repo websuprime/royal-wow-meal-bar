@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Helmet } from 'react-helmet-async'
-import { ArrowRight, ShoppingBag } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import BarNavbar from '@/components/bar/BarNavbar'
 import BarFooter from '@/components/bar/BarFooter'
 import { useQuery } from '@tanstack/react-query'

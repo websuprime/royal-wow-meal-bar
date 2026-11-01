@@ -18,7 +18,7 @@ const sidebarLinks = [
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { email, logout, isAuthenticated } = useAdminStore()
+  const { email, role, logout, isAuthenticated } = useAdminStore()
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -107,6 +107,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
+
+        {role === 'demo' && (
+          <p className="bg-gold/10 border-b border-gold/20 text-gold text-xs tracking-wider px-8 py-2">
+            READ-ONLY DEMO: browse everything; changes are not saved.
+          </p>
+        )}
 
         {/* Page Content */}
         <main className="p-8">

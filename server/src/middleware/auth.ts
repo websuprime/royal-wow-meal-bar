@@ -20,9 +20,19 @@ export async function verifyJwt(request: FastifyRequest, reply: FastifyReply) {
     
     // Attach user to request
     ;(request as any).user = decoded
+
+    if (isReadOnly(decoded) && !['GET', 'HEAD'].includes(request.method)) {
+      return reply.code(403).send(errorResponse(DEMO_READ_ONLY, 403))
+    }
   } catch (error) {
     return reply.code(401).send(errorResponse('Unauthorized: Invalid or expired token', 401))
   }
+}
+
+export const DEMO_READ_ONLY = 'This is a read-only demo account: changes are not saved'
+
+function isReadOnly(decoded: string | jwt.JwtPayload) {
+  return typeof decoded === 'object' && decoded.role === 'demo'
 }
 
 // Swagger security requirement for routes guarded by verifyJwt
